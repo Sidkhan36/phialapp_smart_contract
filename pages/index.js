@@ -1,133 +1,97 @@
-import Head from 'next/head'
-import { useState, useRef } from 'react'
-import { ethers } from 'ethers'
-import { hasEthereum } from '../utils/ethereum'
-import Minter from '../src/artifacts/contracts/Minter.sol/Minter.json'
-import TotalSupply from '../components/TotalSupply'
-import Wallet from '../components/Wallet'
-import YourNFTs from '../components/YourNFTs'
-
+import Head from "next/head";
+import Script from "next/Script";
 export default function Home() {
-  // Constants
-  const MINT_PRICE = 0.03;
-  const MAX_MINT = 10;
-
-  // UI state
-  const [mintQuantity, setMintQuantity] = useState(1)
-  const mintQuantityInputRef = useRef()
-  const [mintError, setMintError] = useState(false)
-  const [mintMessage, setMintMessage] = useState('')
-  const [mintLoading, setMintLoading] = useState(false)
-
-  // Call smart contract to mint NFT(s) from current address
-  async function mintNFTs() {
-    // Check quantity
-    if ( mintQuantity < 1 ) {
-      setMintMessage('You need to mint at least 1 NFT.')
-      setMintError(true)
-      mintQuantityInputRef.current.focus()
-      return
-    }
-    if ( mintQuantity > MAX_MINT ) {
-      setMintMessage('You can only mint a maximum of 10 NFTs.')
-      setMintError(true)
-      mintQuantityInputRef.current.focus()
-      return
-    }
-
-    // Get wallet details
-    if(!hasEthereum()) return
-    try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner()
-
-      try {
-        const address = await signer.getAddress()
-
-        setMintLoading(true);
-          // Interact with contract
-          const contract = new ethers.Contract(process.env.NEXT_PUBLIC_MINTER_ADDRESS, Minter.abi, signer)
-          const totalPrice = MINT_PRICE * mintQuantity
-          const transaction = await contract.mint(mintQuantity, { value: ethers.utils.parseEther(totalPrice.toString()) })
-          await transaction.wait()
-
-          mintQuantityInputRef.current.value = 0
-          setMintMessage(`Congrats, you minted ${mintQuantity} token(s)!`)
-          setMintError(false)
-      } catch {
-        setMintMessage('Connect your wallet first.');
-        setMintError(true)
-      }
-    } catch(error) {
-        setMintMessage(error.message)
-        setMintError(true)
-    }
-    setMintLoading(false)
-  }
-
   return (
-    <div className="max-w-xl mt-36 mx-auto px-4">
+    <div>
       <Head>
-        <title>NFT Minting dApp Starter</title>
-        <meta name="description" content="Mint an NFT, or a number of NFTs, from the client-side." />
+        <title>Phial of Life</title>
         <link rel="icon" href="/favicon.ico" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
       </Head>
-      <Wallet />
-      <main className="space-y-8">
-        { ! process.env.NEXT_PUBLIC_MINTER_ADDRESS ? (
-            <p className="text-md">
-              Please add a value to the <pre>NEXT_PUBLIC_MINTER_ADDRESS</pre> environment variable.
-            </p>
-        ) : (
-          <>
-            <h1 className="text-4xl font-semibold mb-8">
-              NFT Minting dApp Starter
-            </h1>
-            <TotalSupply />
-            <div className="space-y-8">
-                <div className="bg-gray-100 p-4 lg:p-8">
-                  <div>
-                    <h2 className="text-2xl font-semibold mb-2">Mint NFTs</h2>
-                    <label className="text-gray-600 text-sm mb-2 inline-block">
-                      How many NFTs would you like to mint from the smart contract?
-                    </label>
-                    <div className="flex">
-                      <input
-                          className={ ! mintError ? "border p-4 text-center rounded-tl rounded-bl focus:outline-none focus:border-blue-600 w-2/3" : "border border-red-500 p-4 text-center rounded-tl rounded-bl focus:outline-none focus:border-blue-600 w-2/3"}
-                          onChange={ e => setMintQuantity(e.target.value)}
-                          value={mintQuantity}
-                          placeholder="1"
-                          type="number"
-                          min="1"
-                          max="10"
-                          ref={mintQuantityInputRef}
-                        />
-                      <button
-                        className="bg-blue-600 hover:bg-blue-700 text-white py-4 px-8 rounded-tr rounded-br w-1/3"
-                        onClick={mintNFTs}
-                      >
-                        { mintLoading ? 'Loading...' : 'Mint' }
-                      </button>
+      <main>
+        <section className="home-menu">
+          <header className="header-main">
+            <div className="nav-area-full">
+              <div className="container-fluid">
+                <div className="row" id="home-row">
+                  <div className="col-md-1 logo-area">
+                    <div className="logo" id="wallet-logo">
+                      <a href="index.html">
+                        <h6>
+                          Phial
+                          <span>of Life</span>
+                        </h6>
+                      </a>
                     </div>
-                    { mintMessage && <span className={mintError ? "text-red-600 text-xs mt-2 block" : "text-green-600 text-xs mt-2 block"}>{ mintMessage }</span> }
+                  </div>
+                  <div className="col-md-8 d-flex"></div>
+                  <div className="col-md-3"></div>
+                </div>
+              </div>
+            </div>
+          </header>
+        </section>
+        <section className="home-tab">
+          <div className="container-fluid">
+            <div className="row">
+              <header className="header-main"></header>
+              <div className="">
+                <div className="tabs-custom general">
+                  <div id="wallet" className="">
+                    <div className="row justify-content-center">
+                      <div className="">
+                        <div className="roadmap-box">
+                          <div className="roadmap-box-inner">
+                            <div className="number">
+                              <span className="minus">-</span>
+                              <input type="text" value="1" />
+                              <span className="plus">+</span>
+                            </div>
+                            <h4>0.56 ETH</h4>
+                            <h6>
+                              Price per NFT - 0.56 ETH
+                              <span>Max per wallet- 5</span>
+                            </h6>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="row" id="ct-row">
+                      <div className="col-md-3">
+                        <div className="main-logo">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            className="img-fluid"
+                            src="assets/images/logo.gif"
+                            alt="*"
+                          />
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="ct-txt">
+                          <a href="javascript:;">CONNECT A WALLET</a>
+                          <h5>Copyright © 2022 Oluju. All rights reserved</h5>
+                        </div>
+                      </div>
+                      <div className="col-md-3">
+                        <div className="top-links"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              </div>
             </div>
-          </>
-        ) }
-        <YourNFTs />
+          </div>
+        </section>
       </main>
-
-      <footer className="mt-20 text-center">
-        <a
-          href="https://github.com/tomhirst/solidity-nextjs-mint-starter/blob/main/README.md"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:text-blue-700 mb-8 inline-block"
-        >
-          Read the docs
-        </a>
-      </footer>
+      <Script src="assets/js/jquery.min.js" />
+      <Script type="text/javascript" src="assets/js/wow.js" />
+      <Script type="text/javascript" src="assets/js/functions.js" />
     </div>
-  )
+  );
 }
